@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人才招聘</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#0a0e1a;color:#e0e6f0;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(0,100,255,.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(0,200,255,.06) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(100,0,255,.05) 0%,transparent 50%);pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:30px 20px}
+header{text-align:center;padding:40px 0 30px}
+header h1{font-size:2.4em;font-weight:700;background:linear-gradient(135deg,#00d4ff,#7b2fff,#00d4ff);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shine 4s linear infinite;letter-spacing:2px}
+@keyframes shine{to{background-position:200% center}}
+header p{margin-top:10px;color:#7a8ba8;font-size:.95em;letter-spacing:1px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(0,180,255,.25),transparent);margin:20px auto 30px;max-width:500px}
+
+/* Parent row */
+.parent-row{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;transition:all .5s ease}
+.parent-row.expanded{gap:12px}
+
+/* Parent card */
+.p-card{width:180px;padding:22px 16px;border:1px solid rgba(0,180,255,.12);border-radius:14px;background:rgba(15,20,40,.65);backdrop-filter:blur(8px);cursor:pointer;user-select:none;transition:all .4s ease;text-align:center;position:relative}
+.p-card:hover{border-color:rgba(0,180,255,.35);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,140,255,.1)}
+.p-card.active{border-color:rgba(0,200,255,.5);background:rgba(10,25,55,.85);box-shadow:0 0 30px rgba(0,160,255,.12);transform:scale(1.08)}
+.p-card.dim{opacity:.35;filter:blur(1px)}
+.p-card.dim:hover{opacity:.6;filter:blur(0);transform:translateY(-3px)}
+.p-card .icon{width:40px;height:40px;margin:0 auto 12px;border-radius:10px;background:linear-gradient(135deg,rgba(0,160,255,.15),rgba(120,40,255,.15));display:flex;align-items:center;justify-content:center;font-size:1.3em;transition:all .3s}
+.p-card.active .icon{background:linear-gradient(135deg,rgba(0,180,255,.25),rgba(120,40,255,.25));box-shadow:0 0 15px rgba(0,160,255,.2)}
+.p-card .name{font-size:.95em;font-weight:600;color:#fff;line-height:1.4}
+.p-card .count{font-size:.75em;color:#5a7a9a;margin-top:6px}
+
+/* Child panel */
+.child-panel{max-height:0;opacity:0;overflow:hidden;transition:max-height .5s ease,opacity .4s ease;margin:20px auto 0}
+.child-panel.show{max-height:5000px;opacity:1}
+.child-scroll{padding:10px 0 10px}
+.child-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:0 20px}
+
+/* AI notice banner */
+.ai-notice{max-width:600px;margin:0 auto 14px;padding:10px 18px;border:1px solid rgba(255,60,60,.3);border-radius:8px;background:rgba(255,40,40,.08);color:#ff6b6b;font-size:.82em;font-weight:500;text-align:center;line-height:1.6;display:flex;align-items:center;justify-content:center;gap:8px}
+.ai-notice .notice-icon{font-size:1.1em;flex-shrink:0}
+
+/* Child card - compact selector */
+.c-card{width:180px;padding:14px 16px;border:1px solid rgba(0,180,255,.08);border-radius:10px;background:rgba(12,18,38,.6);backdrop-filter:blur(6px);cursor:pointer;user-select:none;transition:all .3s;flex-shrink:0;display:flex;align-items:center;gap:10px}
+.c-card:hover{border-color:rgba(0,180,255,.25);background:rgba(15,25,50,.7)}
+.c-card.selected{border-color:rgba(0,200,255,.4);background:rgba(10,25,55,.8);box-shadow:0 0 16px rgba(0,160,255,.08)}
+.c-card .c-dot{width:6px;height:6px;border-radius:50%;background:#00b4ff;box-shadow:0 0 6px rgba(0,180,255,.5);flex-shrink:0}
+.c-card .c-name{font-size:.85em;font-weight:600;color:#d0daf0;flex:1}
+.c-card .c-arrow{width:14px;height:14px;transition:transform .3s;flex-shrink:0;opacity:.4}
+.c-card .c-arrow svg{fill:#4a9eff;width:14px;height:14px}
+.c-card.selected .c-arrow{transform:rotate(90deg);opacity:1}
+
+/* Modal overlay */
+.modal-overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.modal-overlay.show{opacity:1;pointer-events:auto}
+.modal-bg{position:absolute;inset:0;background:rgba(8,12,24,.35);backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2)}
+.modal-card{position:relative;z-index:1;width:90%;max-width:680px;max-height:78vh;border:1px solid rgba(0,180,255,.15);border-radius:18px;background:rgba(14,20,42,.94);padding:36px 40px;overflow-y:auto;box-shadow:0 4px 80px rgba(0,80,200,.1),0 0 1px rgba(0,180,255,.2);transform:translateY(24px) scale(.96);transition:transform .35s cubic-bezier(.22,1,.36,1);scrollbar-width:thin;scrollbar-color:rgba(0,140,255,.15) transparent}
+.modal-overlay.show .modal-card{transform:translateY(0) scale(1)}
+.modal-card::-webkit-scrollbar{width:5px}
+.modal-card::-webkit-scrollbar-thumb{background:rgba(0,140,255,.2);border-radius:3px}
+.modal-close{position:absolute;top:16px;right:18px;width:28px;height:28px;border:none;background:rgba(255,255,255,.06);border-radius:8px;color:#5a7a9a;font-size:1.1em;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:rgba(255,255,255,.12);color:#fff}
+.detail-title{font-size:1.2em;font-weight:700;color:#fff;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.detail-title .dt-dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#7b2fff);box-shadow:0 0 8px rgba(0,180,255,.4)}
+.detail-parent-tag{font-size:.8em;color:#4a6080;margin-bottom:20px;padding-left:18px}
+.detail-desc{color:#9aacca;font-size:.9em;line-height:2;margin-bottom:24px}
+.detail-desc .item{display:block;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.detail-desc .item:last-child{border-bottom:none}
+.apply-btn{display:inline-block;padding:11px 36px;border:1px solid rgba(0,180,255,.35);border-radius:8px;color:#00d4ff;text-decoration:none;font-size:.88em;font-weight:500;transition:all .3s;background:rgba(0,180,255,.06)}
+.apply-btn:hover{background:rgba(0,180,255,.15);border-color:#00d4ff;box-shadow:0 0 20px rgba(0,180,255,.15)}
+
+footer{text-align:center;padding:40px 0 25px;color:#2a3550;font-size:.8em}
+@media(max-width:768px){.p-card{width:140px;padding:16px 10px}.p-card .name{font-size:.82em}.c-card{width:180px}header h1{font-size:1.7em}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>加入我们 共创未来</h1>
+<p>探索前沿技术 · 定义下一个时代</p>
+</header>
+<div class="divider"></div>
+<div class="parent-row" id="parentRow"></div>
+<div class="child-panel" id="childPanel">
+<div class="child-scroll"><div class="child-row" id="childRow"></div></div>
+</div>
+<footer>© 2025 HiREMENT · 期待与你同行</footer>
+</div>
+<div class="modal-overlay" id="modalOverlay">
+<div class="modal-bg" id="modalBg"></div>
+<div class="modal-card" id="modalCard">
+<button class="modal-close" id="modalClose">✕</button>
+<div id="modalBody"></div>
+</div>
+</div>
+
+<script>
+const DATA=[
+{name:"AI应用工程师",icon:"🤖",ai:true,url:"https://career.huawei.com/cn/job-details?advertisementId=36390",children:[
+{name:"AI技术应用",desc:"1、参与实际产品的AI大模型与AI算法在各类业务场景中的应用开发、集成与迭代优化；\n2、参与AI大模型与AI算法应用相关的需求分析、模型微调、RAG检索，提升模型在各类场景下的应用效果；\n3、参与产品、数据、业务等团队协作，建立AI大模型与AI应用相关的数据分析、效果评估、问题定位与持续优化，提升用户体验和业务价值。"},
+{name:"AI系统软件",desc:"1、参与AI领域系统软件（如分布式训练框架、推理引擎、模型服务化平台等）的工程化设计与开发，参与完成中间件、工具链等核心组件的软件设计与产品化开发；\n2、参与多个模块或特性的系统设计，需求分解，特性分析、代码编写、代码测试、资料编纂等工作；\n3、参与AI系统软件产品的性能调优、可扩展性、稳定性及安全性工作。"}
+]},
+{name:"算法工程师",icon:"🧮",ai:true,url:"https://career.huawei.com/cn/job-details?advertisementId=36385",children:[
+{name:"软件算法",desc:"1、参与自动驾驶感知、规控及安全策略算法的开发与落地，负责具体场景下的问题分析与改进，确保自动驾驶功能在复杂环境下的行为安全与法规合规；\n2、深入参与HarmonyOS等终端操作系统的核心模块（如调度、内存、文件系统）开发，针对响应时延、丢帧等关键指标进行系统级性能分析与调优，保障系统流畅性；\n3、利用成熟的数值计算或AI工具，针对硬件工程中的热、力、电磁等具体场景进行建模与求解，配合业务专家解决散热、供电、高速高密等产品研发中的工程痛点；\n4、结合网络硬件拓扑，负责Allreduce/AllGather等集合通信算法的具体实现与性能优化，提升AI集群的数据传输效率；\n5、应用计算材料学方法模拟材料结构与性能（力、热、电、光等），结合实验数据建立AI预测模型，辅助解决硬件产品中的材料选型与工艺优化问题；\n6、参与端侧AI大模型的落地部署工作，设计并优化SOC异构算力调度策略，提升端侧AI应用的运行能效；\n7、针对大模型应用场景，提取计算与通信特征，构建系统仿真环境并进行验证测试，确保设计方案在实际运行中的可靠性；\n8、协同硬件团队，完成从算法设计到工程落地的全流程开发，确保软件算法能够充分发挥硬件性能；\n9、针对产品研发过程中出现的具体性能瓶颈、稳定性问题进行根因分析与技术攻关，输出高质量的技术解决方案；\n10、跟踪行业内最新的工程技术动态，将创新成果转化为技术专利，并编写高质量的技术文档与接口规范。"}
+]},
+{name:"AI Infra工程师",icon:"⚙️",ai:true,url:"https://career.huawei.com/cn/job-details?advertisementId=36384",children:[
+{name:"AI算子技术",desc:"1、参与大模型训练推理算子的设计与开发，涵盖大模型训练、推理、生成式推荐、数据合成等关键业务场景，实现算子加速，推动成果落地产品并产生商业价值；\n2、参与算子性能优化、精度分析和计算图优化等方案的开发，通过数学等价变换、流水编排、深度融合、调度优化、Tile优化等手段提升算子性能，为端到端训推系统性能提供基础支撑；\n3、参与高性能算子库、基础加速库、算子开发框架的编码与测试，包括AscendC、Triton、TileLang等编程语言的相关实现；\n4、参与自动算子生成工具的研发，利用AI Agent技术提升算子开发的自动化程度和效率；\n5、参与业界前沿技术调研，协助专利申请和技术报告撰写，参与开源社区贡献，与团队共同提升华为在业界的技术影响力。"},
+{name:"AI训推系统",desc:"1、参与Agent、语言、多模态、生成式推荐、空间智能等大模型训练和推理的关键技术与系统架构的开发与实现，协助完成算法突破，并将成果落地产品，产生商业价值；\n2、参与训推框架和加速特性的设计与开发，包括预训练、RL后训练、Agentic AI、推理引擎和服务化、AI训推技术辅助编程等模块的编码与调试；\n3、参与AI训练/推理系统的优化方案设计和开发，在计算、内存、通信、IO等方面开展软硬协同优化，提升系统性能，支撑下一代训推系统构建；\n4、跟踪业界和学术界AI计算集群训推算法、训练系统优化、推理系统优化领域的最新进展，参与业界顶会，参与开源社区贡献，学习并引入先进技术，持续提升系统竞争力。"},
+{name:"AI数据系统",desc:"1、参与语言、多模态与Agent场景下数据生产与流转体系的开发，构建高吞吐、可扩展的数据基础设施，优化数据采集、处理、存储与分发效率，支撑规模化模型训练与行业调优；\n2、参与面向异构分布式环境的数据处理与调度系统的开发，实现分布式数据流水线与推理服务化架构，支持多模型推理、数据合成与蒸馏的高并发执行，提升资源利用率与整体吞吐；\n3、参与统一数据格式与版本管理体系的实现，参与面向大规模训练与推理的存储架构开发，提升数据可追溯性与生命周期管理能力，支撑PB级数据规模扩展；\n4、参与大模型数据工程平台与工具链能力的建设，包括任务编排、指标采集、失败恢复与自动扩缩容等模块的实现，推动数据生产与验证的自动化闭环，支撑数据飞轮高效运转；\n5、跟踪分布式计算、存储与推理加速等前沿技术，与算法及平台团队协作，推动数据工程与训练系统、推理服务及Agent架构的融合落地，持续提升工程成熟度与技术竞争力。"},
+{name:"建模仿真",desc:"1、参与构建面向大语言模型（LLM）及多模态系统的数学模型与仿真框架，以及超参规模下的分布式训练策略、集群/端侧推理优化开发；\n2、参与仿真系统开发与关键指标验证：开发大模型仿真平台，验证训练稳定性，优化集群资源利用率；\n3、参与定位大模型训练瓶颈，优化训练任务优先级动态调整；构建端到端性能预测模型，输出算力资源配置决策树，提升训练效率和推理性能。"}
+]},
+{name:"AI模型工程师",icon:"🧠",ai:true,url:"https://career.huawei.com/cn/job-details?advertisementId=36383",children:[
+{name:"空间智能",desc:"1、参与空间智能(含具身、智驾)大模型前沿算法研究，涵盖4D通用表征、多模态感知融合（视觉/触觉/力觉）、空间理解与推理、端到端运动规划、动作生成等模块的数据生成、算法开发、模型训练优化及评测迭代等工作，持续提升大模型空间智能竞争力；\n2、开展细粒度4D空间对齐与推理技术研究，在VLM中引入4D空间特征编码网络并对齐到LLM语义空间，同时通过DiT/世界模型等技术提升模型的空间推理能力，实现对4D场景的精细化理解；\n3、参与构建大模型的时空间理解与推理能力，实现快慢思考自适应切换，基于CoT压缩与推理加速、高质量CoT生成、强化微调等技术，在保持因果推理能力的同时降低时延，应用于自动驾驶与具身智能；\n4、将业界先进VLA, VLN, World Model, Agent, 强化学习, 迁移学习等技术应用于自动驾驶、具身智能领域，实现安全高效的动作生成，提升自动驾驶在复杂场景下的推理、规划和决策能力，以及机器人各类应用的通用技能；\n5、协同团队推动算法落地应用与技术竞争力构建：包括大规模数据采集与生成、Sim-to-Real迁移、真机部署等工作，搭建空间智能/具身智能技术平台，确保技术方案领先性与差异化；紧跟业界和学术界空间智能领域最新研究进展，参与业界顶会，将前沿成果融入研发。"},
+{name:"多模态大模型",desc:"1、负责多模态大模型（如结合视觉、文本、音频等模态的LLM）的开发、优化和部署，包括模型训练、推理加速和系统集成；\n2、参与数据预处理、标注和多模态数据集构建，确保数据质量和多样性；\n3、设计和实现多模态模型的工程化解决方案，如API接口、分布式训练框架和实时应用模块；\n4、与团队协作，进行模型性能评估、调试和迭代优化，解决工程化中的实际问题（如计算资源管理、模型压缩）；\n5、跟踪多模态AI领域的最新技术趋势，并应用于实际项目中，提升系统效率和稳定性；\n6、编写技术文档、代码注释，并参与代码审查和知识分享。"},
+{name:"Agent技术",desc:"1、深耕记忆管理、自主决策、代码生成技术，持续提升Agent上下文管理、规划推理和工具调用等核心能力，支撑信息获取、应用生成、代码生成、办公文档、GUI操控智能体的构建；\n2、面向预训练/后训练构建Agent的复杂任务规划、Repo级长程轨迹交互、多步工具编排等高价值数据生产管线，强化推理深度、决策鲁棒性与复杂场景适应力，拓展智能体能力边界；\n3、探索强化学习与Agent的深度融合，构建环境反馈驱动的策略优化机制，提升复杂决策场景的泛化性和准确性；\n4、负责业界前沿技术分析和规划，与领军专家和科研团队合作创新，探索自主演化、多智能体协作、复杂代码生成等Agent技术前沿，提升技术竞争力与影响力。"},
+{name:"语言大模型",desc:"1、参与大语言模型架构的工程实现与优化，基于昇腾等硬件平台，开发和维护模型训练与推理流程，重点解决长序列处理、训练效率、推理延迟等工程挑战，支撑业务场景的快速迭代；\n2、参与代码大模型技术体系的工程构建，围绕软件工程全生命周期（如代码生成、缺陷检测、自动化测试等）开发模型服务、API接口及工具链，提升代码生成质量和工程规范符合度；\n3、面向终端智慧助手、软件开发助手等业务场景，负责大模型应用的工程化实现，协同算法、系统和产品团队，解决计算复杂度高、存储开销大等实际问题，确保解决方案的高效稳定落地。"},
+{name:"AI算法",desc:"1、决策推理：应用强化学习、图算法等技术构建决策系统，解决复杂业务场景下的策略优化难题；\n2、语音语义：负责音频处理、语音处理、语音唤醒、说话人识别、语音识别、语音合成、语音大模型、音频大模型、多模态语音大模型、全双工语音交互、端到端语音交互、语音智能体、语音翻译、声学数据仿真等语音关键技术方向的工程开发与交付，以及在手机、座舱、手表、PC、耳机、眼镜、全屋、智慧屏、音箱等1+8产品语音助手场景的落地，保障语音助手的极致稳定体验；\n3、计算机视觉：落地OCR、3D重建等视觉算法，解决多媒体分析场景下的具体工程问题与技术难点。"},
+{name:"后训练与强化学习",desc:"1、围绕语言、多模态、Agent能力，探索后训练SFT数据配比、SFT策略、SFT&RL协同策略、RL训练算法；\n2、参与研究面向Agentic（Planning、Tool-use、Skills-use等），Reasoning（STEM、Logic、TIR等）、Coding（Bug-fix、Feature-implementation等）、General（Instruction Following、Hallucination Control、Context Learning、Content Understand and Generation）等高优场景的针对性Reward System构建、环境模拟、强化学习训练策略；\n3、参与研究强化学习算法、提升强化学习训练稳定性，包括但不限于探索重要性采样策略、细粒度Reward设计、Credit Assignment策略、Off-policy Masking等提升RL训推一致性策略；\n4、参与探索Model Merge（模型融合）、On-policy KD（在线蒸馏）、Multi-task RL（多任务强化学习）等专项能力融合策略。"},
+{name:"AI模型评测",desc:"1、设计和开发自然语言和多模态理解，多模态生成AI大模型和Agent评测体系，评测方法和流程，开发评测所需要的工具，沙箱，脚手架；\n2、设计和开发评测集，评测观测指标和打分标准，对评测集质量进行评估；\n3、对评测结果进行系统分析，开发自动化打标，自动聚类算法，实现自动化分析。"},
+{name:"端侧大模型",desc:"1、负责语言模型、多模态基础模型的开发与优化，参与从预训练（Pre-training）到指令微调（SFT）的全链路开发；\n2、针对端侧场景，构建高质量、高多样性的数据清洗与合成流水线，提升小模型在特定任务上的表现；\n3、应用DPO、PPO等对齐技术，针对端侧交互场景优化模型回复的准确性与安全性；\n4、负责入端模型探索调优，极致优化首字延迟（Prefill）与生成速度（Decoding），确保端侧交互的高流畅度与低功耗。"},
+{name:"搜索推荐",desc:"1、参与算法设计与迭代，对搜索/推荐系统中召回、排序等模块进行算法设计、训练与优化，持续提升点击率、转化率等业务核心指标；\n2、研究LLM如何赋能搜索/推荐系统中的个性化用户理解，利用多模态Tokenizer、长序列建模、推理增强等技术，构建高效的内容理解用户建模模型，增强系统个性化能力；\n3、负责性能优化与系统部署，深度参与数据工程、训练推理优化、模型部署、和算子性能分析，进行硬件亲和的算法方案设计和链路优化，确保模型在大规模场景下的延迟、吞吐和资源成本可控；\n4、参与效果评估与闭环迭代，建立算法评估机制，设计并执行A/B实验，推动算法效果稳定迭代与线上持续优化。"},
+{name:"大模型数据技术",desc:"1、围绕语言、多模态和空间智能数据技术，持续提升预训练/后训练数据的构建、质检、分析和验证能力，支撑基础模型训练和行业模型调优所需的高质量数据生产；\n2、开发数据生产管线，协同构造长上下文理解、长轨迹交互等高阶数据，强化内容质量、知识密度和任务复杂度，拓展模型能力上限；\n3、协同开展数据分析与验证，优化多领域、多模态、多任务数据的采样/配比方法，提升基础模型的数据效能；\n4、构建大模型数据工程和数据飞轮的关键工具与平台能力，提升数据技术的创新验证效率，支撑规模化数据生产、验证和版本管理；\n5、参与业界前沿技术分析和规划，与领军专家和科研团队合作创新，探索大模型数据技术前沿，提升技术竞争力与影响力。"}
+]},
+{name:"软件开发工程师",icon:"💻",url:"https://career.huawei.com/cn/job-details?advertisementId=36373",children:[
+{name:"通用软件",desc:"1、负责产品/平台的软件需求分析、方案设计、代码开发、静态检查、单元测试、本地构建、测试环境搭建、集成测试、问题定界定位、资料开发等工作；\n2、负责相关组件/模块的看护及重构，持续优化提升代码质量（可维护性、可扩展性、可测试性等）；\n3、负责后端故障诊断和项目支持技术活动，包括问题解决、产品维护、项目支撑等；\n4、负责智能化演进，探索AI应用、AI智能体等关键技术，持续提升产品竞争力。"},
+{name:"嵌入式软件",desc:"1、负责嵌入式软件（如网卡驱动、DSP软件、大规模并行化软件等）的方案设计、编码、开发者测试、联调等工作；\n2、负责问题定界/定位、问题解决等，持续提升产品质量；\n3、负责相关组件/模块的看护及重构，持续提升代码质量。"}
+]}
+];
+
+const arrowSVG='<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>';
+const parentRow=document.getElementById('parentRow');
+const childPanel=document.getElementById('childPanel');
+const childRow=document.getElementById('childRow');
+const modalOverlay=document.getElementById('modalOverlay');
+const modalBg=document.getElementById('modalBg');
+const modalCard=document.getElementById('modalCard');
+const modalClose=document.getElementById('modalClose');
+const modalBody=document.getElementById('modalBody');
+let activeIdx=-1;
+
+// Build parent cards
+DATA.forEach((g,i)=>{
+const d=document.createElement('div');
+d.className='p-card';
+d.innerHTML=`<div class="icon">${g.icon}</div><div class="name">${g.name}</div><div class="count">${g.children.length} 个方向</div>`;
+d.addEventListener('click',()=>toggleParent(i));
+parentRow.appendChild(d);
+});
+
+function toggleParent(idx){
+const cards=parentRow.querySelectorAll('.p-card');
+if(activeIdx===idx){closePanel();return}
+activeIdx=idx;
+// Dim non-active cards, keep active prominent
+cards.forEach((c,i)=>{
+if(i===idx){c.classList.add('active');c.classList.remove('dim')}
+else{c.classList.remove('active');c.classList.add('dim')}
+});
+
+// Build child selector cards
+childRow.innerHTML='';
+const g=DATA[idx];
+g.children.forEach((c,ci)=>{
+const el=document.createElement('div');
+el.className='c-card';
+el.innerHTML=`<span class="c-dot"></span><span class="c-name">${c.name}</span><span class="c-arrow">${arrowSVG}</span>`;
+el.addEventListener('click',()=>selectChild(ci));
+childRow.appendChild(el);
+});
+childPanel.classList.add('show');
+}
+
+function selectChild(ci){
+const g=DATA[activeIdx];
+const c=g.children[ci];
+// Parse desc into items
+const items=c.desc.split('\n').filter(s=>s.trim());
+const itemsHtml=items.map(t=>`<span class="item">${t}</span>`).join('');
+modalBody.innerHTML=`
+${g.ai?'<div class="ai-notice"><span class="notice-icon">⚠️</span>该岗位机试内容会涉及AI内容，请认真准备</div>':''}
+<div class="detail-title"><span class="dt-dot"></span>${c.name}</div>
+<div class="detail-parent-tag">${g.name}</div>
+<div class="detail-desc">${itemsHtml}</div>
+<a class="apply-btn" href="${g.url}" target="_blank" rel="noopener">申请职位 →</a>`;
+modalOverlay.classList.add('show');
+document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+modalOverlay.classList.remove('show');
+document.body.style.overflow='';
+}
+function closePanel(){
+activeIdx=-1;
+parentRow.querySelectorAll('.p-card').forEach(c=>{c.classList.remove('active','dim')});
+childPanel.classList.remove('show');
+closeModal();
+setTimeout(()=>{childRow.innerHTML='';modalBody.innerHTML=''},400);
+}
+
+modalBg.addEventListener('click',closeModal);
+modalClose.addEventListener('click',closeModal);
+modalCard.addEventListener('click',e=>e.stopPropagation());
+</script>
+</body>
+</html>
