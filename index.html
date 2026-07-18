@@ -15,6 +15,14 @@ header h1{font-size:2.4em;font-weight:700;background:linear-gradient(135deg,#00d
 header p{margin-top:10px;color:#7a8ba8;font-size:.95em;letter-spacing:1px}
 .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(0,180,255,.25),transparent);margin:20px auto 30px;max-width:500px}
 
+/* Toggle switch */
+.toggle-bar{display:flex;justify-content:center;margin-bottom:28px}
+.toggle-group{display:flex;border:1px solid rgba(0,180,255,.15);border-radius:10px;overflow:hidden;background:rgba(10,15,30,.5)}
+.toggle-btn{padding:10px 28px;font-size:.88em;font-weight:500;color:#5a7a9a;cursor:pointer;user-select:none;transition:all .3s;border:none;background:transparent;position:relative}
+.toggle-btn:hover{color:#a0b8d8}
+.toggle-btn.active{color:#fff;background:rgba(0,140,255,.15);box-shadow:inset 0 0 20px rgba(0,140,255,.08)}
+.toggle-btn.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,#00d4ff,transparent);border-radius:1px}
+
 /* Parent row */
 .parent-row{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;transition:all .5s ease}
 .parent-row.expanded{gap:12px}
@@ -80,6 +88,12 @@ footer{text-align:center;padding:40px 0 25px;color:#2a3550;font-size:.8em}
 <p>探索前沿技术 · 定义下一个时代</p>
 </header>
 <div class="divider"></div>
+<div class="toggle-bar">
+<div class="toggle-group">
+<div class="toggle-btn active" data-type="benshuo">本硕岗位</div>
+<div class="toggle-btn" data-type="boshi">博士岗位</div>
+</div>
+</div>
 <div class="parent-row" id="parentRow"></div>
 <div class="child-panel" id="childPanel">
 <div class="child-scroll"><div class="child-row" id="childRow"></div></div>
@@ -95,7 +109,7 @@ footer{text-align:center;padding:40px 0 25px;color:#2a3550;font-size:.8em}
 </div>
 
 <script>
-const DATA=[
+const DATA_BENSHUO=[
 {name:"AI应用工程师",icon:"🤖",ai:true,url:"https://career.huawei.com/cn/job-details?advertisementId=36390",children:[
 {name:"AI技术应用",desc:"1、参与实际产品的AI大模型与AI算法在各类业务场景中的应用开发、集成与迭代优化；\n2、参与AI大模型与AI算法应用相关的需求分析、模型微调、RAG检索，提升模型在各类场景下的应用效果；\n3、参与产品、数据、业务等团队协作，建立AI大模型与AI应用相关的数据分析、效果评估、问题定位与持续优化，提升用户体验和业务价值。"},
 {name:"AI系统软件",desc:"1、参与AI领域系统软件（如分布式训练框架、推理引擎、模型服务化平台等）的工程化设计与开发，参与完成中间件、工具链等核心组件的软件设计与产品化开发；\n2、参与多个模块或特性的系统设计，需求分解，特性分析、代码编写、代码测试、资料编纂等工作；\n3、参与AI系统软件产品的性能调优、可扩展性、稳定性及安全性工作。"}
@@ -127,6 +141,46 @@ const DATA=[
 ]}
 ];
 
+const DATA_BOSHI=[
+{name:"AI Infra研究员",icon:"⚡",ai:true,url:"https://career.huawei.com/cn/job-details?advertisementId=36415",children:[
+{name:"AI训推系统",desc:"1、负责Agent、语言、多模态、生成式推荐、空间智能等大模型训练和推理的关键技术与系统架构的创新研究，引领业界方向，实现关键算法和技术突破，推动成果落地产品并产生商业价值；\n2、主导训推框架和加速特性的前沿设计与研究，包括预训练、RL后训练、Agentic AI、推理引擎和服务化、AI训推技术辅助编程等方向，探索下一代技术方案；\n3、主导AI训练/推理系统的优化方案研究，开展AI模型算法与计算系统的联合创新优化，通过计算、内存、通信、IO等软硬协同设计，支撑下一代训推系统竞争力构建；\n4、把握并引领业界和学术界AI计算集群训推算法、训练系统优化、推理系统优化领域的最新研究进展和技术趋势，参与业界顶会，参与开源社区贡献，持续提升AI算力集群系统竞争力，将前沿成果融入研发。"},
+{name:"AI算子技术",desc:"1、负责大模型训练推理算子的创新设计与研究，涵盖大模型训练、推理、生成式推荐、数据合成等关键业务场景，主导算子加速技术突破；\n2、主导算子性能优化、精度分析和计算图优化等前沿方案研究，通过数学等价变换、流水编排、深度融合、调度优化、Tile优化等创新方法，实现算子性能的跨越式提升；\n3、主导高性能算子库、基础加速库、算子开发框架的架构设计与核心开发，包括AscendC、Triton、TileLang等编程语言的关键技术创新；\n4、领导自动算子生成工具的研发，结合AI Agent技术构建智能化算子开发体系；\n5、负责业界前沿技术研究和技术规划，主导专利申请和高质量论文撰写，领导开源项目。"},
+{name:"AI数据系统",desc:"1、负责语言、多模态与Agent场景下数据生产与流转体系的创新研究，主导高吞吐、可扩展数据基础设施的架构设计；\n2、主导面向异构分布式环境的数据处理与调度系统研究，创新分布式数据流水线与推理服务化架构；\n3、主导统一数据格式与版本管理体系的架构设计，创新面向大规模训练与推理的存储架构；\n4、领导大模型数据工程平台与工具链能力建设，构建数据生产与验证的智能化自动化闭环；\n5、把握分布式计算、存储与推理加速等领域的前沿技术趋势，推动数据工程与训练系统、推理服务及Agent架构的深度融合。"},
+{name:"建模仿真",desc:"1、负责AI系统建模与仿真策略制定：构建面向LLM及多模态系统的数学模型与仿真框架，研究分布式训练策略、集群/端侧推理优化方案；\n2、负责仿真系统开发与关键指标验证：开发大模型仿真平台，验证训练稳定性，优化集群资源利用率；\n3、负责系统优化与方案决策：定位大模型训练瓶颈，设计弹性资源调度算法，构建端到端性能预测模型；\n4、模拟真实AI工作负载下的数据流、控制流，分析算力互联控制机制对性能的影响，提出改进方案。"}
+]},
+{name:"AI应用研究员",icon:"🤖",ai:true,url:"https://career.huawei.com/cn/job-details?advertisementId=36419",children:[
+{name:"AI系统软件",desc:"1、负责AI领域系统软件的架构设计与核心模块开发，负责核心组件的方案设计与实现；\n2、负责多个模块或特性的软件需求分析、架构设计、代码编写，有效指导低级别软件工程师；\n3、负责改进AI系统软件产品的性能、可扩展性、稳定性及安全性；\n4、参与AI系统软件架构演进与技术方案迭代，推动系统架构、研发流程与工程效率持续优化。"},
+{name:"AI技术应用",desc:"1、负责AI大模型与AI算法在各类业务场景中的应用开发、集成与优化；\n2、负责AI大模型应用相关的需求分析、系统架构设计、模型微调、RAG检索等；\n3、负责产品、数据、业务等团队协作，建立数据分析、效果评估、问题定位与持续优化；\n4、洞察AI大模型与AI算法应用的前沿技术，参与公司AI平台能力建设。"}
+]},
+{name:"AI模型研究员",icon:"🧠",ai:true,url:"https://career.huawei.com/cn/job-details?advertisementId=36411",children:[
+{name:"Agent技术",desc:"1、负责记忆管理、自主决策、代码生成相关模块的开发、优化与落地，支撑各类智能体的开发与上线；\n2、设计、开发并落地复杂任务规划、Repo级长程轨迹交互、多步工具编排等高价值数据生产管线；\n3、负责Agentic强化学习相关功能开发，构建并落地环境反馈驱动的策略优化机制。"},
+{name:"多模态大模型",desc:"1、领导多模态大模型的创新研究，包括新型架构设计、跨模态融合算法开发和前沿问题探索；\n2、设计和执行大规模实验，分析多模态数据的表示学习和生成机制；\n3、发表高水平学术论文（如CVPR、NeurIPS、ICLR等会议），并申请相关专利；\n4、指导工程师团队，将研究成果转化为可落地应用；\n5、与外部学术机构或企业合作，参与联合研究项目；\n6、评估新兴技术趋势，制定长期研究路线图。"},
+{name:"后训练与强化学习",desc:"1、围绕语言、多模态、Agent能力，探索后训练SFT数据配比、SFT策略、SFT&RL协同策略、RL训练算法；\n2、研究面向Agentic、Reasoning、Coding、General等高优场景的Reward System构建、环境模拟、强化学习训练策略；\n3、研究强化学习算法、提升强化学习训练稳定性；\n4、探索Model Merge、On-policy KD、Multi-task RL等专项能力融合策略。"}
+]},
+{name:"计算技术研究员",icon:"🖥️",url:"https://career.huawei.com/cn/job-details?advertisementId=36420",children:[
+{name:"计算系统软件",desc:"1、负责芯片、互联、内存及存储系统的架构设计，研究异构算力对等互访等关键技术；\n2、面向通智融合、Agent应用等新兴场景，探索算力虚拟化、数据编排、感知加速等创新技术；\n3、主导自研AI科学计算平台建设，解决稀疏计算、算子融合、分布式计算等核心问题；\n4、负责主流开源软件库的算法重构与底层算子优化，开发AI4S加速库；\n5、持续跟踪高性能计算与AI融合趋势，推动分布式训练、异构算力调度等技术突破；\n6、把握业界计算系统架构的最新研究进展，通过协同优化提升计算系统竞争力。"},
+{name:"互联总线系统",desc:"1、针对大模型训练和推理场景，设计与构建全栈总线网络协议，实现高性能、高可用、高可扩展的协议栈；\n2、负责基于总线网络协议的端到端benchmark验证和协议仿真平台构建；\n3、负责分析业界友商和学术动态，参与关键技术的规划、验证与落地。"},
+{name:"处理器技术",desc:"1、负责研究未来应用负载模型，负责CPU/NPU算力底座的微架构等体系结构创新；\n2、负责泛AI场景workload分析与负载建模，规划CPU底座微架构、SoC等层次创新及关键技术开发；\n3、负责分析主流应用系统全栈性能瓶颈，通过软硬协同全栈优化构建鲲鹏CPU竞争力；\n4、围绕内存子系统、总线IO等领域开展技术洞察与技术创新开发。"},
+{name:"计算与存储系统硬件",desc:"1、围绕下一代AI infra系统，研究分离式和分布式系统网络架构、流量控制协议和集合通信算法等；\n2、研究下一代光互联技术，包括光电混合组网拓扑、内存和存储系统的光互连池化等；\n3、研究芯片级互联技术，包括高性能SoC内部片上网络架构、晶圆级互联、片上数据流优化等；\n4、跟踪相关技术前沿研究，推动行业生态建设。"},
+{name:"AI加速器技术",desc:"从事下一代AI加速器系统原型的开发和验证：\n1、构建近内存计算系统，研究NDP、PIM、数据流架构等推理加速技术；\n2、构建感存算一体技术，研究视觉和生物信息感知电路、信号处理算法和高能效大模型算法；\n3、面向通用算力和AI异构场景，开展全局资源池化组件设计、开发、落地；\n4、研究创新SoC系统架构，开展AI DSA的异构集成、CPU内核技术研究；\n5、持续跟踪AI加速器领域前沿技术，支撑下一代计算系统的技术领先性。"}
+]},
+{name:"软件开发高级工程师",icon:"💻",url:"https://career.huawei.com/cn/job-details?advertisementId=36400",children:[
+{name:"操作系统与编译器",desc:"1、负责操作系统/编译器/编程语言领域多个核心模块的需求分析、架构设计，框架代码与关键特性代码的实现；\n2、负责子系统软件架构看护及重构，以可信设计原则为导向；\n3、作为原创/主导者，进行子系统/关键特性技术创新，解决关键技术难点；\n4、负责智能化演进，攻坚AI算力融合与调度、AI编译与硬件协同等技术难题。"},
+{name:"数据库",desc:"1、负责数据库/大数据/数据湖仓内核模块或管理系统的需求分析、架构设计、核心代码开发、疑难问题定界定位；\n2、负责架构看护及重构，主导高性能时序引擎、分布式一致性、多地多活等关键技术创新；\n3、负责智能化演进，攻坚AI for DB、DB for AI技术难题。"}
+]},
+{name:"算法研究员",icon:"🧮",ai:true,url:"https://career.huawei.com/cn/job-details?advertisementId=36412",children:[
+{name:"软件算法",desc:"1、自动驾驶安全架构设计：主导自动驾驶系统安全架构的顶层设计，攻克复杂环境下的感知与规控算法难题；\n2、AI4Science与多物理场算法突破：负责计算力学、电磁学、流体等领域的数值求解算法创新；\n3、高性能集群架构规划：设计面向下一代大模型的高性能计算与通信架构；\n4、下一代芯片与AI Infra规划：定义端侧AI Infra架构方案；\n5、新材料发现与方法论创新：建立基于AI的材料发现新范式；\n6、操作系统前沿技术探索：设计下一代资源调度算法与架构；\n7、复杂系统数学建模：构建业界领先的数学模型与AI求解器；\n8、全球技术合作与影响力建设：发表高水平论文，参与竞赛并进行专利布局；\n9、跨领域技术融合：推动多学科交叉技术的融合创新；\n10、技术战略与标准制定：参与相关领域的技术标准制定。"},
+{name:"存储算法",desc:"负责存储系统算法技术研究：\n1、针对万亿参数大模型，主导研发AI存算协同或近存计算架构，攻克数据I/O瓶颈；\n2、设计面向CXL或RDMA等新型协议的新型存储架构，实现倍数级存储性能提升；\n3、针对新型存储介质，建立数学模型优化FTL与GC策略，研究智能索引与特征提取算法；\n4、洞察存储技术前沿趋势，主导端到端存储创新课题的规划与实施。"},
+{name:"通信算法",desc:"负责面向泛通信领域新技术研究：\n1、负责PHY算法研究与实现，包括系统分析、仿真建模、光传输信号处理、MIMO、编码调制等；\n2、负责PHY/HighLayer领域总体方案设计；\n3、负责MAC/RRM算法设计和仿真分析验证；\n4、负责通信系统中的人工智能、大数据挖掘算法研究；\n5、负责介质信道处理算法研究与设计；\n6、跟踪前沿技术进展，定义下一代系统特性与关键技术路径。"}
+]},
+{name:"网络技术研究员",icon:"🌐",url:"https://career.huawei.com/cn/job-details?advertisementId=36421",children:[
+{name:"网络通信系统与互联技术",desc:"面向网络通信物理层链路层开展前瞻性创新研究：\n1、面向集群、数据中心光电互联关键技术的探索和研究突破；\n2、面向智能万物互联场景的电互联通信关键技术研究；\n3、面向互联领域高低速接口物理层PCS算法、架构、协议关键技术研究；\n4、研究下一代AI通信/计算/存储网络软硬协同关键技术；\n5、探索AI Scaleup/Scaleout通信硬件的微架构与宏系统创新；\n6、输出相关专利、论文，参与国际标准研究及制定；\n7、发展行业合作伙伴，推动行业生态建设。"},
+{name:"网络芯片技术",desc:"可根据个人专长选择方向深入开展：\n1、从事网络设备转发领域关键技术研究，包括查找算法、流量管理、交换算法等；\n2、从事网络数据面AI算法研究，包括流量AI分析、业务质量感知等；\n3、从事芯片体系结构与加速方案研究，包括多核芯片架构分析、SoC系统架构研究；\n4、从事AI模型在异构计算平台上的加速与优化。"}
+]}
+];
+
+let currentData=DATA_BENSHUO;
+
 const arrowSVG='<svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>';
 const parentRow=document.getElementById('parentRow');
 const childPanel=document.getElementById('childPanel');
@@ -138,13 +192,28 @@ const modalClose=document.getElementById('modalClose');
 const modalBody=document.getElementById('modalBody');
 let activeIdx=-1;
 
-// Build parent cards
-DATA.forEach((g,i)=>{
+function renderCards(){
+parentRow.innerHTML='';
+closePanel();
+currentData.forEach((g,i)=>{
 const d=document.createElement('div');
 d.className='p-card';
 d.innerHTML=`<div class="icon">${g.icon}</div><div class="name">${g.name}</div><div class="count">${g.children.length} 个方向</div>`;
 d.addEventListener('click',()=>toggleParent(i));
 parentRow.appendChild(d);
+});
+}
+renderCards();
+
+document.querySelectorAll('.toggle-btn').forEach(btn=>{
+btn.addEventListener('click',()=>{
+const type=btn.dataset.type;
+if((type==='boshi'&&currentData===DATA_BOSHI)||(type==='benshuo'&&currentData===DATA_BENSHUO))return;
+document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+currentData=type==='boshi'?DATA_BOSHI:DATA_BENSHUO;
+renderCards();
+});
 });
 
 function toggleParent(idx){
@@ -159,7 +228,7 @@ else{c.classList.remove('active');c.classList.add('dim')}
 
 // Build child selector cards
 childRow.innerHTML='';
-const g=DATA[idx];
+const g=currentData[idx];
 g.children.forEach((c,ci)=>{
 const el=document.createElement('div');
 el.className='c-card';
@@ -171,7 +240,7 @@ childPanel.classList.add('show');
 }
 
 function selectChild(ci){
-const g=DATA[activeIdx];
+const g=currentData[activeIdx];
 const c=g.children[ci];
 // Parse desc into items
 const items=c.desc.split('\n').filter(s=>s.trim());
@@ -181,7 +250,7 @@ ${g.ai?'<div class="ai-notice"><span class="notice-icon">⚠️</span>该岗位�
 <div class="detail-title"><span class="dt-dot"></span>${c.name}</div>
 <div class="detail-parent-tag">${g.name}</div>
 <div class="detail-desc">${itemsHtml}</div>
-<a class="apply-btn" href="${g.url}" target="_blank" rel="noopener">申请职位 →</a>`;
+${g.url?`<a class="apply-btn" href="${g.url}" target="_blank" rel="noopener">申请职位 →</a>`:''}`;
 modalOverlay.classList.add('show');
 document.body.style.overflow='hidden';
 }
